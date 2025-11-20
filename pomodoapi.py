@@ -43,6 +43,7 @@ def main(page: ft.Page):
         total = initial_total
         status_text.value = "Pomodoro"
         atualizar_display_por_total()
+        app_container.bgcolor = "#EF4444"
         page.update()
     
     async def timer():
@@ -67,16 +68,19 @@ def main(page: ft.Page):
                     modo = "pausa_longa"
                     status_text.value = "Pausa longa"
                     total = 15 * 60
+                    app_container.bgcolor = "#22C55E"
 
                 else:
                     modo = "pausa_curta"
                     status_text.value = "Pausa curta"
                     total = 5 * 60
+                    app_container.bgcolor = "#22C55E"
 
             else:
                 modo = "pomodoro"
                 status_text.value = "Pomodoro"
                 total = 25 * 60
+                app_container.bgcolor = "#EF4444"
 
             atualizar_display_por_total()
             page.update()
@@ -100,6 +104,15 @@ def main(page: ft.Page):
             )
         ]
     )
+
+    app_container = ft.Container(
+        content=todoapp,
+        bgcolor="#EF4444",
+        expand=True,
+        padding=20,
+        animate=ft.Animation(400, "ease")
+    )
+
     page.add(todoapp)  
 
 ft.app(target=main)
