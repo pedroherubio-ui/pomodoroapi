@@ -11,6 +11,9 @@ def main(page: ft.Page):
     page.update()
 
     time_text = ft.Text("25:00", size=50, color="white")
+    time_text_container = ft.Container(content=time_text, padding=ft.padding.only(left=10))
+    time_edit = ft.TextField(value="25:00", visible=False, color="white")
+
     status_text = ft.Text("Pomodoro", size=20, color="white")
     ciclo_text = ft.Text("Ciclo 1/4", size=18, color="white")
 
@@ -20,6 +23,19 @@ def main(page: ft.Page):
     ciclo = 1
     pomodoros_completos = 0
     running = False
+
+    time_edit_button = ft.IconButton(
+        icon=ft.Icons.EDIT,
+        icon_color="white",
+        on_click=lambda e: habilitar_edicao_tempo()
+    )
+
+    time_save_button = ft.IconButton(
+        icon=ft.Icons.SAVE,
+        icon_color="white",
+        visible=False,
+        on_click=lambda e: salvar_edicao_tempo()
+    )
 
     def atualizar_display_por_total():
         m, s = divmod(total, 60)
@@ -45,6 +61,28 @@ def main(page: ft.Page):
         atualizar_display_por_total()
         app_container.bgcolor = "#EF4444"
         page.update()
+
+    def habilitar_edicao_tempo():
+        time_text.visible = False
+        time_edit.visible = True
+        time_edit_button.visible = False
+        time_save_button.visible = True
+        page.update()
+
+    def salvar_edicao_tempo():
+        nonlocal total, initial_total
+
+        novo = time_edit.value.strip()
+        m, s = map(int, novo.split(":"))
+        total = m * 60 + s
+        initial_total = total
+
+        time_text.value = novo
+        time_text.visible = True
+        time_edit.visible = False
+        time_edit_button.visible = True
+        time_save_button.visible = False
+        page.update()
     
     async def timer():
         nonlocal running, total, modo, pomodoros_completos
@@ -63,24 +101,28 @@ def main(page: ft.Page):
                 pomodoros_completos += 1
                 ciclo_atual = (pomodoros_completos % 4) or 4
                 ciclo_text.value = f"Ciclo {ciclo_atual}/4"
+                page.update()
 
                 if pomodoros_completos % 4 == 0:
                     modo = "pausa_longa"
                     status_text.value = "Pausa longa"
                     total = 15 * 60
-                    app_container.bgcolor = "#22C55E"
+                    app_container.bgcolor = "#3B82F6"
+                    page.update()
 
                 else:
                     modo = "pausa_curta"
                     status_text.value = "Pausa curta"
                     total = 5 * 60
                     app_container.bgcolor = "#22C55E"
+                    page.update()
 
             else:
                 modo = "pomodoro"
                 status_text.value = "Pomodoro"
                 total = 25 * 60
                 app_container.bgcolor = "#EF4444"
+                page.update()
 
             atualizar_display_por_total()
             page.update()
@@ -92,15 +134,16 @@ def main(page: ft.Page):
     todoapp = ft.Column(
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        controls = [
-            time_text,
+        controls=[
             ft.Row(
                 alignment=ft.MainAxisAlignment.CENTER,
-                controls = [
-                    start_button,
-                    pause_button,
-                    restart_button
-                ]
+                controls=[time_text_container, time_edit, time_edit_button, time_save_button]
+            ),
+            status_text,
+            ciclo_text,
+            ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[start_button, pause_button, restart_button]
             )
         ]
     )
@@ -113,6 +156,6 @@ def main(page: ft.Page):
         animate=ft.Animation(400, "ease")
     )
 
-    page.add(todoapp)  
+    page.add(app_container)  
 
 ft.app(target=main)
