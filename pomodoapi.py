@@ -1,5 +1,6 @@
 import flet as ft
 import asyncio
+from flet_audio import Audio
 
 def main(page: ft.Page):
     page.title = "Pomodoro"
@@ -9,6 +10,9 @@ def main(page: ft.Page):
     page.window.center()
     page.padding = 0
     page.update()
+
+    audio = Audio(src="assets/ring.mp3", autoplay=False)
+    page.overlay.append(audio)
 
     time_text = ft.Text("25:00", size=50, color="white")
     time_text_container = ft.Container(content=time_text, padding=ft.padding.only(left=10))
@@ -94,6 +98,8 @@ def main(page: ft.Page):
             page.update()
 
         if total == 0:
+
+            audio.play()
 
             running = False
 
